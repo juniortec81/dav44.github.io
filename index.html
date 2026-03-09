@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daniel | NASA Space Viewer</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(180deg, #050816, #0b1d3a);
+      color: white;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+
+    p {
+      line-height: 1.6;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      backdrop-filter: blur(6px);
+      margin-top: 24px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    input, button {
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: none;
+      font-size: 1rem;
+    }
+
+    input {
+      min-width: 180px;
+    }
+
+    button {
+      background: #2d8cff;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1f6fd1;
+    }
+
+    img, iframe {
+      width: 100%;
+      max-height: 550px;
+      object-fit: contain;
+      border-radius: 14px;
+      margin-top: 20px;
+      background: #000;
+    }
+
+    .meta {
+      margin-top: 16px;
+      color: #d6e4ff;
+    }
+
+    .small {
+      font-size: 0.95rem;
+      color: #c7d4ef;
+    }
+
+    .loading {
+      opacity: 0.8;
+      font-style: italic;
+    }
+
+    a {
+      color: #8cc8ff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Daniel's NASA Space Viewer</h1>
+    <p>
+      Pulling live data from NASA's Astronomy Picture of the Day API.
+    </p>
+
+    <div class="card">
+      <div class="controls">
+        <input type="date" id="dateInput" />
+        <button onclick="loadAPOD()">Load NASA Image</button>
+        <button onclick="loadToday()">Today's APOD</button>
+      </div>
+
+      <div id="status" class="loading">Loading today's NASA image...</div>
+
+      <h2 id="title"></h2>
+      <div id="media"></div>
+
+      <div class="meta">
+        <p><strong>Date:</strong> <span id="date"></span></p>
+        <p><strong>Copyright:</strong> <span id="copyright">N/A</span></p>
+        <p id="explanation"></p>
+        <p class="small">
+          Source: NASA APOD API
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Replace this with your NASA API key
+    const API_KEY = "PASTE_YOUR_NASA_API_KEY_HERE";
+
+    async function loadAPOD(selectedDate = "") {
+      const status = document.getElementById("status");
+      const title = document.getElementById("title");
+      const date = document.getElementById("date");
+      const copyright = document.getElementById("copyright");
+      const explanation = document.getElementById("explanation");
+      const media = document.getElementById("media");
+
+      status.textContent = "Loading NASA data...";
+      title.textContent = "";
+      date.textContent = "";
+      copyright.textContent = "N/A";
+      explanation.textContent = "";
+      media.innerHTML = "";
+
+      try {
+        let url = `https://api.nasa.gov/planetary/apod?api_key=${gVgdiiO2aHHDTHIogyfAd3NsdJ5FCFYaqwHBQDgN}`;
+
+        if (selectedDate) {
+          url += `&date=${selectedDate}`;
+        }
+
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error(`Request failed: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        status.textContent = "";
+        title.textContent = data.title || "NASA APOD";
+        date.textContent = data.date || "Unknown";
+        copyright.textContent = data.copyright || "N/A";
+        explanation.textContent = data.explanation || "";
+
+        if (data.media_type === "image") {
+          const img = document.createElement("img");
+          img.src = data.hdurl || data.url;
+          img.alt = data.title || "NASA image";
+          media.appendChild(img);
+        } else if (data.media_type === "video") {
+          const iframe = document.createElement("iframe");
+          iframe.src = data.url;
+          iframe.width = "100%";
+          iframe.height = "500";
+          iframe.allowFullscreen = true;
+          iframe.style.border = "none";
+          media.appendChild(iframe);
+        } else {
+          media.innerHTML = "<p>Unsupported media type returned by NASA.</p>";
+        }
+      } catch (error) {
+        status.textContent = "Could not load NASA data.";
+        media.innerHTML = `<p>${error.message}</p>`;
+      }
+    }
+
+    function loadToday() {
+      document.getElementById("dateInput").value = "";
+      loadAPOD();
+    }
+
+    document.getElementById("dateInput").addEventListener("change", (e) => {
+      loadAPOD(e.target.value);
+    });
+
+    loadAPOD();
+  </script>
+</body>
+</html>
