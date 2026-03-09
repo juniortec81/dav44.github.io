@@ -1,0 +1,20 @@
+title: Daniel
+description: Operations Research
+show_downloads: no
+
+theme: jekyll-theme-cayman
+
+url: "https://yourusername.github.io"
+baseurl: ""
+
+markdown: kramdown
+highlighter: rouge
+
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+
+exclude:
+  - README.md
+  - node_modules
+  - vendor
